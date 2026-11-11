@@ -6,6 +6,7 @@
   const statusEl = document.getElementById('status');
   const printBtn = document.getElementById('print');
   const makeBtn = document.getElementById('make');
+  const dock = document.querySelector('.dock');
 
   const TOKENS = {
     star:  { sym: '★', one: 'star',  many: 'stars',  color: '#c58b00' },
@@ -81,10 +82,18 @@
   function syncOptions() {
     const f = form.elements;
     const two = f.k.value === '2';
-    for (const o of f.n.options) o.disabled = two && +o.value < 8;
+    for (const o of f.n) o.disabled = two && +o.value < 8;
     if (two && +f.n.value < 8) f.n.value = '9';
-    f.level.options[0].disabled = two;
+    f.level[0].disabled = two;
     if (two && f.level.value === '1') f.level.value = '2';
+    syncReadouts();
+  }
+
+  function syncReadouts() {
+    const f = form.elements;
+    const out = name => form.querySelector(`output[data-for="${name}"]`);
+    out('n').textContent = `${f.n.value} × ${f.n.value}` + (f.n.value === '4' ? ' · first timers' : '');
+    out('token').textContent = cap(f.token.value);
   }
 
   // ---------- drawing ----------
@@ -166,6 +175,7 @@
 
   function sheet(s) {
     const d = el('section', 'sheet' + (s.paper === 'a4' ? ' a4' : ''));
+    d.style.setProperty('--i', Math.min(pagesEl.children.length, 8));
     return d;
   }
 
@@ -317,15 +327,46 @@
 
   let runId = 0;
   let lastMade = null; // { s, puzzles } so switching modes can restore the preview
-  const EMPTY_MSG = '<p class="empty">Pick your settings and press <b>Make puzzles</b>. You’ll see the pages here, then press <b>Print</b>.</p>';
+
+  // A friendly first screen: a little fan of real puzzles, one of them solved.
+  function welcomeHTML() {
+    const star = TOKENS.star;
+    const cards = [
+      { cls: 'a', n: 6, level: 1, seed: 7, tag: ['6 × 6', 'Easy'] },
+      { cls: 'b', n: 5, level: 1, seed: 11, tag: ['5 × 5', 'Solved!'], solved: true },
+      { cls: 'c', n: 7, level: 2, seed: 3, tag: ['7 × 7', 'Medium'] },
+    ].map(c => {
+      const p = E.generate({ n: c.n, k: 1, level: c.level, seed: c.seed });
+      if (!p) return '';
+      const svg = boardSVG(p, { color: true, tokens: c.solved ? p.solution : null, token: star });
+      return `<div class="card-paper ${c.cls}"><div class="tag"><span>${c.tag[0]}</span><span>${c.tag[1]}</span></div>${svg}</div>`;
+    }).join('');
+    return `<div class="welcome">
+      <div class="fan" aria-hidden="true">${cards}</div>
+      <h2>Puzzles you can hold</h2>
+      <p>Put one ${star.sym} in every row, every column and every colored pen — and they can’t touch, not even corners.</p>
+      <ol class="steps">
+        <li><b>Pick</b>a grid size, difficulty and token on the left.</li>
+        <li><b>Make</b>a fresh batch — each one has exactly one answer.</li>
+        <li><b>Print</b>and grab a pencil. Answers go at the back.</li>
+      </ol>
+    </div>`;
+  }
+  let welcomeCache = null;
+  function showWelcome() {
+    if (!welcomeCache) welcomeCache = welcomeHTML();
+    pagesEl.innerHTML = welcomeCache;
+  }
 
   async function make(s) {
     const id = ++runId;
     makeBtn.disabled = true;
     printBtn.disabled = true;
+    dock.classList.add('busy');
     const puzzles = [];
     for (let i = 0; i < s.count; i++) {
       statusEl.textContent = `Building puzzle ${i + 1} of ${s.count}…`;
+      dock.style.setProperty('--p', i / s.count);
       await new Promise(r => setTimeout(r, 0));
       if (id !== runId) return;
       const seed = E.hashString(`${s.code}|${s.n}|${s.k}|${s.level}|${i}`);
@@ -334,8 +375,11 @@
     }
     lastMade = { s, puzzles };
     render(s, puzzles);
+    dock.style.setProperty('--p', 1);
+    setTimeout(() => { if (id === runId) dock.classList.remove('busy'); }, 400);
     const off = puzzles.filter(p => p.level !== s.level).length;
-    statusEl.textContent = `${puzzles.length} puzzle${puzzles.length === 1 ? '' : 's'} ready.` +
+    const pages = pagesEl.querySelectorAll('.sheet').length;
+    statusEl.textContent = `✅ ${puzzles.length} puzzle${puzzles.length === 1 ? '' : 's'} ready on ${pages} page${pages === 1 ? '' : 's'}.` +
       (off ? ` ${off} came out at a different level than asked (each puzzle shows its level). Small grids can’t get very hard.` : '');
     makeBtn.disabled = false;
     printBtn.disabled = puzzles.length === 0;
@@ -348,7 +392,7 @@
     for (const b of document.querySelectorAll('.mode-tabs button')) b.setAttribute('aria-selected', String(b.dataset.mode === mode));
     if (mode === 'make') {
       if (lastMade) render(lastMade.s, lastMade.puzzles);
-      else pagesEl.innerHTML = EMPTY_MSG;
+      else showWelcome();
     }
     try { localStorage.setItem('paperpens.mode', mode); } catch (e) { /* storage unavailable */ }
     document.dispatchEvent(new CustomEvent('paperpens:mode', { detail: mode }));
@@ -365,8 +409,19 @@
 
   // ---------- wire up ----------
 
-  form.elements.k.addEventListener('change', syncOptions);
-  document.getElementById('new-code').addEventListener('click', () => { form.elements.code.value = randomCode(); });
+  for (const r of form.elements.k) r.addEventListener('change', syncOptions);
+  form.addEventListener('change', syncReadouts);
+  for (const b of form.querySelectorAll('[data-step]')) {
+    b.addEventListener('click', () => {
+      const c = form.elements.count;
+      c.value = Math.max(1, Math.min(24, (+c.value || 0) + +b.dataset.step));
+    });
+  }
+  const dice = document.getElementById('new-code');
+  dice.addEventListener('click', () => {
+    form.elements.code.value = randomCode();
+    dice.classList.remove('roll'); void dice.offsetWidth; dice.classList.add('roll');
+  });
   document.getElementById('today').addEventListener('click', () => { form.elements.code.value = todayCode(); });
   printBtn.addEventListener('click', () => window.print());
   for (const b of document.querySelectorAll('.mode-tabs button')) b.addEventListener('click', () => setMode(b.dataset.mode));
