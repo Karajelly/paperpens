@@ -195,10 +195,32 @@
   }
 
   function refresh(recheck) {
-    if (recheck) st.result = analyze();
+    if (recheck) {
+      const was = st.result && st.result.state;
+      st.result = analyze();
+      if (st.result.state === 'good' && was !== 'good' && !st.quiet) confetti();
+    }
     drawEditor();
     drawPalette();
     drawVerdict();
+  }
+
+  // A little burst of paper confetti from the editor when a puzzle starts working.
+  function confetti() {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const box = $('editor').getBoundingClientRect();
+    const layer = document.createElement('div');
+    layer.className = 'confetti';
+    const bits = [];
+    for (let i = 0; i < 46; i++) {
+      const ang = Math.random() * Math.PI * 2, dist = 120 + Math.random() * 260;
+      bits.push(`<i style="--x:${box.left + box.width / 2}px;--y:${box.top + box.height / 2}px;` +
+        `--dx:${Math.cos(ang) * dist}px;--dy:${Math.sin(ang) * dist + 160}px;--r:${(Math.random() * 720 - 360) | 0}deg;` +
+        `--c:${COLORS[i % COLORS.length]};animation-delay:${(Math.random() * 120) | 0}ms"></i>`);
+    }
+    layer.innerHTML = bits.join('');
+    document.body.appendChild(layer);
+    setTimeout(() => layer.remove(), 1700);
   }
 
   // ---------- painting ----------
@@ -268,7 +290,7 @@
     $('d-size').value = String(n);
     $('d-k').value = String(k);
     syncDesignOptions();
-    refresh(true);
+    st.quiet = true; refresh(true); st.quiet = false;
   }
 
   function syncDesignOptions() {
@@ -553,7 +575,7 @@
     $('print-mine').addEventListener('click', printMine);
     $('share-link').addEventListener('click', shareDesign);
     syncDesignOptions();
-    refresh(true);
+    st.quiet = true; refresh(true); st.quiet = false;
     drawSaved();
     openFromURL();
   }

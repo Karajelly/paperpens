@@ -6,7 +6,7 @@ CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 shot() { # out width height url [transparent]
   local bg=(); [[ "${5:-}" == transparent ]] && bg=(--default-background-color=00000000)
-  "$CHROME" --headless --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --allow-file-access-from-files \
+  "$CHROME" --headless --virtual-time-budget=5000 --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --allow-file-access-from-files \
     "${bg[@]}" --window-size="$2,$3" --screenshot="$1" "$4" >/dev/null 2>&1
 }
 WRAP="$ROOT/scripts/.wrap.html"
@@ -16,7 +16,7 @@ wrap() { # svg size -> url of a page that shows the svg at that size
   printf 'file://%s' "$WRAP"
 }
 full() { # svg size -> full-bleed icon (apple-touch, maskable): svg on paper, inside the 80% safe zone
-  printf '<body style="margin:0;width:%spx;height:%spx;display:grid;place-items:center;background:#fbfaf7"><img src="file://%s" style="width:62%%">' "$2" "$2" "$1" > "$WRAP"
+  printf '<body style="margin:0;width:%spx;height:%spx;display:grid;place-items:center;background:#fffdf8"><img src="file://%s" style="width:62%%">' "$2" "$2" "$1" > "$WRAP"
   printf 'file://%s' "$WRAP"
 }
 shot "$ROOT/public/og-image.png" 1200 630 "file://$ROOT/scripts/og-image.html"
