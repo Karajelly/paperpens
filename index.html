@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paper Pens — printable logic puzzles</title>
+  <link rel="stylesheet" href="styles.css">
+  <style id="page-size">@page { size: letter; margin: 0; }</style>
+</head>
+<body data-mode="make">
+  <aside class="controls" aria-label="Puzzle settings">
+    <h1>Paper Pens</h1>
+    <p class="lede">Printable “one per row, column and pen” logic puzzles. Every puzzle has exactly one answer and can be solved with logic alone.</p>
+
+    <div class="mode-tabs" role="tablist">
+      <button type="button" role="tab" data-mode="make" aria-selected="true">Make puzzles</button>
+      <button type="button" role="tab" data-mode="design" aria-selected="false">Design your own</button>
+    </div>
+
+    <form id="settings">
+      <fieldset data-only="make">
+        <legend>Puzzles</legend>
+        <label>Tokens per pen
+          <select name="k">
+            <option value="1">1 — classic</option>
+            <option value="2">2 — expert (big grids)</option>
+          </select>
+        </label>
+        <label>Grid size
+          <select name="n">
+            <option value="4">4 × 4 (first timers)</option>
+            <option value="5">5 × 5</option>
+            <option value="6" selected>6 × 6</option>
+            <option value="7">7 × 7</option>
+            <option value="8">8 × 8</option>
+            <option value="9">9 × 9</option>
+            <option value="10">10 × 10</option>
+          </select>
+        </label>
+        <label>Difficulty
+          <select name="level">
+            <option value="1">Easy</option>
+            <option value="2" selected>Medium</option>
+            <option value="3">Hard</option>
+            <option value="4">Tricky</option>
+          </select>
+        </label>
+        <label>How many puzzles
+          <input name="count" type="number" min="1" max="24" value="4">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Paper</legend>
+        <label>Puzzles per page
+          <select name="perPage">
+            <option value="1">1 (big)</option>
+            <option value="2">2</option>
+            <option value="4" selected>4</option>
+            <option value="6">6</option>
+          </select>
+        </label>
+        <label>Paper size
+          <select name="paper">
+            <option value="letter">US Letter</option>
+            <option value="a4">A4</option>
+          </select>
+        </label>
+        <label>Token
+          <select name="token">
+            <option value="star">Star ★</option>
+            <option value="bull">Bull 🐂</option>
+            <option value="cow">Cow 🐄</option>
+            <option value="cat">Cat 🐱</option>
+            <option value="heart">Heart ♥</option>
+            <option value="dot">Dot ●</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" name="color" checked> Color the pens (uses a little ink)</label>
+        <label class="check"><input type="checkbox" name="rules" checked> Print the rules on each page</label>
+        <label class="check"><input type="checkbox" name="names" checked> Name &amp; time lines</label>
+        <label class="check"><input type="checkbox" name="key" checked> Answer key (last pages)</label>
+        <label class="check"><input type="checkbox" name="tips"> How-to-solve tips page</label>
+      </fieldset>
+
+      <fieldset data-only="make">
+        <legend>Puzzle code</legend>
+        <p class="hint">Same code + same settings = the same puzzles. Print two copies for a race.</p>
+        <div class="row">
+          <input name="code" maxlength="16" spellcheck="false" autocomplete="off" aria-label="Puzzle code">
+          <button type="button" id="new-code" title="New random code" aria-label="New random code">🎲</button>
+        </div>
+        <button type="button" id="today" class="link">Use today’s date (puzzle of the day)</button>
+      </fieldset>
+
+      <div class="actions" data-only="make">
+        <button type="submit" id="make">Make puzzles</button>
+        <button type="button" id="print" disabled>Print</button>
+      </div>
+      <p id="status" role="status" aria-live="polite" data-only="make"></p>
+      <p class="hint" data-only="design">These paper settings are used when you print your own puzzles from <b>My puzzles</b>.</p>
+    </form>
+  </aside>
+
+  <main>
+    <div id="pages" aria-label="Print preview"></div>
+
+    <section id="designer" data-only="design" aria-label="Design your own puzzle">
+      <div class="card">
+        <header class="card-head">
+          <h2>Design your own puzzle</h2>
+          <p>Pick a color, then click or drag across the grid to draw a pen. Use every color once. Each pen is one connected shape. The checker tells you when your puzzle has exactly one answer.</p>
+        </header>
+
+        <div class="design-bar">
+          <label>Size
+            <select id="d-size">
+              <option value="4">4 × 4</option>
+              <option value="5">5 × 5</option>
+              <option value="6" selected>6 × 6</option>
+              <option value="7">7 × 7</option>
+              <option value="8">8 × 8</option>
+              <option value="9">9 × 9</option>
+              <option value="10">10 × 10</option>
+            </select>
+          </label>
+          <label>Per pen
+            <select id="d-k">
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+          </label>
+          <button type="button" id="blank">Clear grid</button>
+          <button type="button" id="random">Random layout</button>
+        </div>
+
+        <div class="design-body">
+          <div id="editor" class="editor"></div>
+          <div class="design-side">
+            <div id="palette" class="palette" aria-label="Pen colors"></div>
+            <div id="verdict" class="verdict" role="status" aria-live="polite"></div>
+            <div class="design-actions">
+              <button type="button" id="fix">Help me fix</button>
+              <button type="button" id="show-answer">Peek at the answer</button>
+            </div>
+            <label>Puzzle name <input id="d-title" maxlength="40" placeholder="e.g. The Big Barn"></label>
+            <label>Made by <input id="d-author" maxlength="30" placeholder="Your name"></label>
+            <div class="design-actions">
+              <button type="button" id="save" class="primary">Save to My puzzles</button>
+              <span id="save-note" class="note" role="status" aria-live="polite"></span>
+            </div>
+            <label>Share code
+              <span class="row"><input id="share-code" readonly spellcheck="false"><button type="button" id="copy-share">Copy</button></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <header class="card-head row-head">
+          <h2>My puzzles</h2>
+          <button type="button" id="print-mine" class="primary" disabled>Print</button>
+        </header>
+        <div class="row load-row">
+          <input id="load-code" placeholder="Paste a share code (PP1-…)" spellcheck="false" aria-label="Share code to open">
+          <button type="button" id="load-btn">Open</button>
+        </div>
+        <div id="saved-list" class="saved-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="generator.js"></script>
+  <script src="app.js"></script>
+  <script src="designer.js"></script>
+</body>
+</html>
