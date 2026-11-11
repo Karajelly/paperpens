@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Paper Pens: a 2x2 board split into three pens, one star placed -->
+  <defs><clipPath id="t"><rect x="2" y="2" width="60" height="60" rx="12"/></clipPath></defs>
+  <g clip-path="url(#t)">
+    <rect width="64" height="64" fill="#9ED9AE"/>
+    <rect width="32" height="32" fill="#F6A5B5"/>
+    <rect y="32" width="32" height="32" fill="#FFE07A"/>
+  </g>
+  <path d="M32 2V62M2 32H32" stroke="#1d1d1f" stroke-width="5"/>
+  <path d="M32 32H62" stroke="#1d1d1f" stroke-opacity=".35" stroke-width="2"/>
+  <rect x="4.5" y="4.5" width="55" height="55" rx="10" fill="none" stroke="#1d1d1f" stroke-width="5"/>
+  <path transform="translate(17.5 18.5) scale(1.05)" fill="#1d1d1f" stroke="#1d1d1f" stroke-width="1.5" stroke-linejoin="round" d="M0.00 -10.00L2.59 -3.56L9.51 -3.09L4.18 1.36L5.88 8.09L0.00 4.40L-5.88 8.09L-4.18 1.36L-9.51 -3.09L-2.59 -3.56Z"/>
+</svg>

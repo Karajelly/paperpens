@@ -1,0 +1,53 @@
+<!doctype html>
+<!-- Source for public/og-image.png (1200x630). Rebuild with scripts/build-images.sh -->
+<html><head><meta charset="utf-8"><style>
+  html, body { margin: 0; }
+  body { width: 1200px; height: 630px; overflow: hidden; background: #e9e7e2; color: #1d1d1f;
+    font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, sans-serif; position: relative; }
+  .copy { position: absolute; left: 72px; top: 0; bottom: 0; width: 560px; display: flex; flex-direction: column; justify-content: center; }
+  .brand { display: flex; align-items: center; gap: 20px; }
+  .brand img { width: 84px; height: 84px; }
+  h1 { font-size: 92px; line-height: 1; margin: 0; letter-spacing: -0.025em; font-weight: 800; }
+  .tag { font-size: 40px; line-height: 1.18; margin: 34px 0 0; font-weight: 700; letter-spacing: -0.01em; }
+  .rule { font-size: 27px; line-height: 1.35; margin: 18px 0 0; color: #55555a; }
+  .rule b { color: #1d1d1f; }
+  .url { position: absolute; left: 72px; bottom: 44px; font-size: 26px; font-weight: 700; color: #2f6f4f; }
+  .sheet { position: absolute; right: 70px; top: 50%; width: 430px; height: 530px; margin-top: -265px; background: #fff;
+    transform: rotate(3deg); box-shadow: 0 2px 4px rgba(0,0,0,.08), 0 20px 50px rgba(0,0,0,.16); border-radius: 4px; padding: 32px 32px 0; box-sizing: border-box; }
+  .sheet h2 { margin: 0 0 4px; font-size: 22px; } .sheet p { margin: 0 0 18px; font-size: 15px; color: #6b6b70; }
+  .pencil { position: absolute; right: 40px; bottom: 78px; transform: rotate(-38deg); transform-origin: right center; }
+</style></head><body>
+  <div class="copy">
+    <div class="brand"><img src="../public/favicon.svg" alt=""><h1>Paper Pens</h1></div>
+    <p class="tag">Printable logic puzzles for pencil and paper.</p>
+    <p class="rule">One <b>★</b> in every row, every column and every pen. Every puzzle has exactly one answer.</p>
+  </div>
+  <div class="url">paperpens.org</div>
+  <div class="sheet"><h2>Puzzle 1</h2><p>Medium · 6 × 6</p><div id="board"></div></div>
+  <svg class="pencil" width="330" height="34" viewBox="0 0 330 34">
+    <path d="M40 4H300V30H40Z" fill="#f2c14e"/><path d="M40 4H300V12H40Z" fill="#f7d77f"/>
+    <path d="M300 4H326V30H300Z" fill="#e88aa0"/><path d="M296 4H304V30H296Z" fill="#b9b9b9"/>
+    <path d="M40 4L4 17L40 30Z" fill="#f1dcb5"/><path d="M15 13L4 17L15 21Z" fill="#3a3a3a"/>
+  </svg>
+<script>
+  // A real Medium 6x6 puzzle from the generator (seed 2026), partly solved in pencil.
+  const n = 6, regions = '244400222440322141333111535511555511'.split('').map(Number);
+  const stars = [3, 11, 28], marks = [2, 4, 9, 10, 5, 17, 16, 21, 22, 23, 27, 29, 33, 34, 35, 32, 20, 26, 8, 15];
+  const PASTELS = ['#FCE1E4', '#DDEFE3', '#FFF0BF', '#DCEAFB', '#ECDDF8', '#FFE1C9'];
+  const cs = 61, m = 6, W = n * cs + 2 * m, out = [];
+  for (let i = 0; i < n * n; i++) out.push(`<rect x="${m + (i % n) * cs}" y="${m + ((i / n) | 0) * cs}" width="${cs}" height="${cs}" fill="${PASTELS[regions[i]]}"/>`);
+  let thin = '', thick = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    const i = r * n + c, x = m + c * cs, y = m + r * cs;
+    if (c < n - 1) { const seg = `M${x + cs} ${y}v${cs}`; regions[i] !== regions[i + 1] ? thick += seg : thin += seg; }
+    if (r < n - 1) { const seg = `M${x} ${y + cs}h${cs}`; regions[i] !== regions[i + n] ? thick += seg : thin += seg; }
+  }
+  out.push(`<path d="${thin}" stroke="#8d8d8d" stroke-width="1.6"/>`);
+  out.push(`<path d="${thick}" stroke="#1d1d1f" stroke-width="5" stroke-linecap="square"/>`);
+  out.push(`<rect x="${m}" y="${m}" width="${n * cs}" height="${n * cs}" fill="none" stroke="#1d1d1f" stroke-width="6"/>`);
+  for (const i of marks) { const x = m + (i % n) * cs + cs / 2, y = m + ((i / n) | 0) * cs + cs / 2, d = 9;
+    out.push(`<path d="M${x - d} ${y - d}L${x + d} ${y + d}M${x + d} ${y - d}L${x - d} ${y + d}" stroke="#7a7a80" stroke-width="2.6" stroke-linecap="round"/>`); }
+  for (const i of stars) out.push(`<text x="${m + (i % n) * cs + cs / 2}" y="${m + ((i / n) | 0) * cs + cs / 2 + 14}" font-size="40" text-anchor="middle" fill="#c58b00">★</text>`);
+  document.getElementById('board').innerHTML = `<svg width="${W}" height="${W}" viewBox="0 0 ${W} ${W}">${out.join('')}</svg>`;
+</script>
+</body></html>

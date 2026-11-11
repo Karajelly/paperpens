@@ -4,6 +4,47 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Paper Pens — printable logic puzzles</title>
+  <meta name="description" content="Free printable “one per row, column and pen” logic puzzles, the Star Battle family. Pick a size and difficulty, print, and solve with a pencil. Every puzzle has exactly one answer.">
+  <link rel="canonical" href="https://paperpens.org/">
+  <meta name="theme-color" content="#fbfaf7">
+
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Paper Pens">
+  <meta property="og:url" content="https://paperpens.org/">
+  <meta property="og:title" content="Paper Pens — printable logic puzzles">
+  <meta property="og:description" content="One star in every row, column and pen. Print puzzles from easy to tricky, or design your own. Every puzzle has exactly one answer.">
+  <meta property="og:image" content="https://paperpens.org/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Paper Pens: a printed 6 by 6 puzzle with colored pens, partly solved with stars and pencil crosses.">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Paper Pens — printable logic puzzles">
+  <meta name="twitter:description" content="One star in every row, column and pen. Print puzzles from easy to tricky, or design your own.">
+  <meta name="twitter:image" content="https://paperpens.org/og-image.png">
+  <meta name="twitter:image:alt" content="A printed 6 by 6 Paper Pens puzzle, partly solved in pencil.">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Paper Pens",
+    "url": "https://paperpens.org/",
+    "description": "Printable one-per-row, column and pen logic puzzles with a generator and a design-your-own mode.",
+    "applicationCategory": "GameApplication",
+    "genre": "Logic puzzle",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires JavaScript",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "image": "https://paperpens.org/og-image.png"
+  }
+  </script>
   <link rel="stylesheet" href="styles.css">
   <style id="page-size">@page { size: letter; margin: 0; }</style>
 </head>
@@ -97,6 +138,7 @@
         <button type="submit" id="make">Make puzzles</button>
         <button type="button" id="print" disabled>Print</button>
       </div>
+      <button type="button" id="share" class="link" data-only="make">Share a link to these puzzles</button>
       <p id="status" role="status" aria-live="polite" data-only="make"></p>
       <p class="hint" data-only="design">These paper settings are used when you print your own puzzles from <b>My puzzles</b>.</p>
     </form>
@@ -152,6 +194,7 @@
             <label>Share code
               <span class="row"><input id="share-code" readonly spellcheck="false"><button type="button" id="copy-share">Copy</button></span>
             </label>
+            <button type="button" id="share-link" class="link">Share a link that opens this puzzle</button>
           </div>
         </div>
       </div>
