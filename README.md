@@ -47,8 +47,14 @@ folder, and nothing outside that folder is uploaded.
 npm install          # installs Wrangler
 npm run dev          # local server on the Cloudflare runtime
 npm test             # checks generated puzzles have exactly one solution
-npm run deploy       # publish (run `npx wrangler login` once first)
+npm run deploy       # publish by hand (run `npx wrangler login` once first)
 ```
+
+Pushes to `main` deploy automatically. `.github/workflows/deploy.yml` runs the
+tests, then `wrangler deploy`. It needs two repository secrets:
+`CLOUDFLARE_API_TOKEN` (a token made from the "Edit Cloudflare Workers"
+template) and `CLOUDFLARE_ACCOUNT_ID`. You can also re-run a deploy by hand from
+the Actions tab.
 
 ## Files
 
