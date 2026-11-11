@@ -405,7 +405,32 @@
     window.print();
   }
 
-  window.PaperPens = { TOKENS, PASTELS, boardSVG, regionColors, readForm, printHomemade, levelName, esc };
+  // Share a URL: the system share sheet where there is one (phones), else the clipboard.
+  // Resolves to 'shared', 'copied', 'cancelled' or 'failed'.
+  function shareLink(url, title, text) {
+    if (navigator.share) {
+      return navigator.share({ title, text, url }).then(() => 'shared', e => (e && e.name === 'AbortError' ? 'cancelled' : copy()));
+    }
+    return copy();
+    function copy() {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) return Promise.resolve('failed');
+      return navigator.clipboard.writeText(url).then(() => 'copied', () => 'failed');
+    }
+  }
+
+  function shareSheet() {
+    syncOptions();
+    const s = readForm();
+    form.elements.code.value = s.code;
+    history.replaceState(null, '', toHash(s));
+    const what = `${levelName(s.level).toLowerCase()} ${s.n}×${s.n} puzzle${s.count === 1 ? '' : 's'}`;
+    shareLink(location.href, 'Paper Pens', `${s.count} printable ${what} (code ${s.code}). Same link, same puzzles.`).then(r => {
+      statusEl.textContent = r === 'copied' ? 'Link copied. Anyone who opens it gets these exact puzzles.'
+        : r === 'failed' ? `Copy this link to share: ${location.href}` : statusEl.textContent;
+    });
+  }
+
+  window.PaperPens = { TOKENS, PASTELS, boardSVG, regionColors, readForm, printHomemade, levelName, esc, shareLink };
 
   // ---------- wire up ----------
 
@@ -424,6 +449,7 @@
   });
   document.getElementById('today').addEventListener('click', () => { form.elements.code.value = todayCode(); });
   printBtn.addEventListener('click', () => window.print());
+  document.getElementById('share').addEventListener('click', shareSheet);
   for (const b of document.querySelectorAll('.mode-tabs button')) b.addEventListener('click', () => setMode(b.dataset.mode));
   form.addEventListener('submit', e => {
     e.preventDefault();
@@ -436,7 +462,12 @@
   });
 
   const fromUrl = fromHash();
-  if (fromUrl) {
+  if (fromUrl && fromUrl.design) {
+    // a "design" link: designer.js loads the puzzle from the URL
+    form.elements.code.value = randomCode();
+    syncOptions();
+    setMode('design');
+  } else if (fromUrl) {
     writeForm(fromUrl);
     syncOptions();
     setMode('make');

@@ -501,6 +501,38 @@
     $('load-code').value = '';
   }
 
+  function shareURL() {
+    const p = new URLSearchParams({ design: toCode(st.n, st.k, st.regions) });
+    const title = $('d-title').value.trim(), author = $('d-author').value.trim();
+    if (title) p.set('title', title.slice(0, 40));
+    if (author) p.set('by', author.slice(0, 30));
+    return `${location.origin}${location.pathname}#${p}`;
+  }
+
+  function shareDesign() {
+    if (!$('share-code').value) { flashNote('Finish coloring every square first.'); return; }
+    const title = $('d-title').value.trim();
+    const url = shareURL();
+    P().shareLink(url, title ? `${title} · Paper Pens` : 'A Paper Pens puzzle', 'Can you solve my puzzle? One in every row, column and pen.')
+      .then(r => {
+        if (r === 'copied') flashNote('Link copied. It opens this puzzle for whoever you send it to.');
+        else if (r === 'failed') prompt('Copy this link to share your puzzle:', url);
+      });
+  }
+
+  // Open a puzzle from a shared link (#design=PP1-…&title=…&by=…), then tidy the URL.
+  function openFromURL() {
+    const p = new URLSearchParams(location.hash.slice(1));
+    if (!p.has('design')) return;
+    history.replaceState(null, '', location.pathname + location.search);
+    const parsed = fromCode(p.get('design'));
+    if (!parsed) { flashNote('That shared link is broken. Ask for the share code instead.'); return; }
+    st.editingId = null;
+    $('d-title').value = (p.get('title') || '').slice(0, 40);
+    $('d-author').value = (p.get('by') || '').slice(0, 30);
+    resetGrid(parsed.n, parsed.k, parsed.regions);
+  }
+
   function printMine() {
     const list = loadSaved().filter(x => x.print !== false);
     if (!list.length) return;
@@ -541,9 +573,11 @@
       copyText(code).then(ok => flashNote(ok ? 'Code copied — paste it anywhere to share.' : 'Select the code and copy it.'));
     });
     $('print-mine').addEventListener('click', printMine);
+    $('share-link').addEventListener('click', shareDesign);
     syncDesignOptions();
     st.quiet = true; refresh(true); st.quiet = false;
     drawSaved();
+    openFromURL();
   }
 
   document.addEventListener('paperpens:mode', e => { if (e.detail === 'design') init(); });

@@ -61,3 +61,6 @@ It needs no secrets in GitHub. Build results show up as checks on each commit.
 - `public/designer.js`: the draw-your-own editor, checker, saved puzzles and share codes
 - `public/styles.css`: screen preview and print styles (Letter or A4)
 - `test/generator.test.js`: `npm test` checks that puzzles have one solution and times generation
+- `public/favicon.svg`: the icon source; the PNG icons, `favicon.ico` and the
+  `og-image.png` share card are built from it and `scripts/og-image.html` by
+  `scripts/build-images.sh` (needs Google Chrome). Rerun it after changing either.

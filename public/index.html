@@ -4,7 +4,47 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Paper Pens — printable logic puzzles</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='2' width='28' height='28' rx='7' fill='%23fff' stroke='%2322223a' stroke-width='3'/%3E%3Cpath d='M2 16h14V2' fill='%23ffd9e0'/%3E%3Cpath d='M16 2v14h14V9a7 7 0 0 0-7-7z' fill='%23d6f0df'/%3E%3Cpath d='M2 16v7a7 7 0 0 0 7 7h21V16z' fill='%23dcebff'/%3E%3Cpath d='M16 2v14H2M16 16h14' stroke='%2322223a' stroke-width='3' fill='none'/%3E%3Crect x='2' y='2' width='28' height='28' rx='7' fill='none' stroke='%2322223a' stroke-width='3'/%3E%3Ctext x='23' y='26' font-size='11' text-anchor='middle' fill='%23e0a100'%3E%E2%98%85%3C/text%3E%3C/svg%3E">
+  <meta name="description" content="Free printable “one per row, column and pen” logic puzzles, the Star Battle family. Pick a size and difficulty, print, and solve with a pencil. Every puzzle has exactly one answer.">
+  <link rel="canonical" href="https://paperpens.org/">
+  <meta name="theme-color" content="#fffdf8">
+
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Paper Pens">
+  <meta property="og:url" content="https://paperpens.org/">
+  <meta property="og:title" content="Paper Pens — printable logic puzzles">
+  <meta property="og:description" content="One star in every row, column and pen. Print puzzles from easy to tricky, or design your own. Every puzzle has exactly one answer.">
+  <meta property="og:image" content="https://paperpens.org/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Paper Pens: a printed 6 by 6 puzzle with colored pens, partly solved with stars and pencil crosses.">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Paper Pens — printable logic puzzles">
+  <meta name="twitter:description" content="One star in every row, column and pen. Print puzzles from easy to tricky, or design your own.">
+  <meta name="twitter:image" content="https://paperpens.org/og-image.png">
+  <meta name="twitter:image:alt" content="A printed 6 by 6 Paper Pens puzzle, partly solved in pencil.">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Paper Pens",
+    "url": "https://paperpens.org/",
+    "description": "Printable one-per-row, column and pen logic puzzles with a generator and a design-your-own mode.",
+    "applicationCategory": "GameApplication",
+    "genre": "Logic puzzle",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires JavaScript",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "image": "https://paperpens.org/og-image.png"
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap">
@@ -141,6 +181,7 @@
           <button type="submit" id="make" class="btn primary">✨ Make puzzles</button>
           <button type="button" id="print" class="btn" disabled>🖨️ Print</button>
         </div>
+        <button type="button" id="share" class="link">🔗 Share a link to these puzzles</button>
       </div>
     </form>
   </aside>
@@ -198,6 +239,7 @@
               <label>Share code
                 <span class="row"><input id="share-code" readonly spellcheck="false"><button type="button" id="copy-share" class="btn">Copy</button></span>
               </label>
+              <button type="button" id="share-link" class="link">🔗 Share a link that opens this puzzle</button>
             </div>
           </div>
         </div>
