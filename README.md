@@ -6,8 +6,8 @@ on a screen.
 
 ## Use it
 
-Double-click `index.html` to open it in Chrome, Safari or Firefox. Nothing to
-install, no internet needed. Pick the settings, press **Make puzzles**, then
+Open the hosted site, or double-click `public/index.html` to use it offline in
+Chrome, Safari or Firefox. Pick the settings, press **Make puzzles**, then
 **Print**.
 
 - Every puzzle has exactly one solution, checked by a solver.
@@ -37,10 +37,23 @@ puzzles live in this browser under **My puzzles** and print with the paper
 settings in the sidebar. A share code (`PP1-…`) lets you send a puzzle to
 someone else.
 
+## Develop and deploy
+
+The site is plain HTML, CSS and JavaScript with no build step. It's hosted as a
+static-assets-only Cloudflare Worker: `wrangler.jsonc` serves the `public/`
+folder, and nothing outside that folder is uploaded.
+
+```bash
+npm install          # installs Wrangler
+npm run dev          # local server on the Cloudflare runtime
+npm test             # checks generated puzzles have exactly one solution
+npm run deploy       # publish (run `npx wrangler login` once first)
+```
+
 ## Files
 
-- `generator.js`: makes solutions, grows pens, removes extra solutions, grades difficulty
-- `app.js`: settings, page layout and SVG drawing
-- `designer.js`: the draw-your-own editor, checker, saved puzzles and share codes
-- `styles.css`: screen preview and print styles (Letter or A4)
-- `test/generator.test.js`: `node test/generator.test.js` checks that puzzles have one solution and times generation
+- `public/generator.js`: makes solutions, grows pens, removes extra solutions, grades difficulty
+- `public/app.js`: settings, page layout and SVG drawing
+- `public/designer.js`: the draw-your-own editor, checker, saved puzzles and share codes
+- `public/styles.css`: screen preview and print styles (Letter or A4)
+- `test/generator.test.js`: `npm test` checks that puzzles have one solution and times generation

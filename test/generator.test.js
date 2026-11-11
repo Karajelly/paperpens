@@ -1,7 +1,7 @@
 // Run: node test/generator.test.js
 // Checks every generated puzzle is valid and has exactly one solution, and
 // reports timing + how often each difficulty target is hit.
-const E = require('../generator.js');
+const E = require('../public/generator.js');
 
 function check(p) {
   const { n, k, regions, solution } = p;

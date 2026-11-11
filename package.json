@@ -1,0 +1,16 @@
+{
+  "name": "paperpens",
+  "private": true,
+  "description": "Printable pen-and-paper logic puzzles",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node test/generator.test.js 2"
+  },
+  "devDependencies": {
+    "wrangler": "^4.160.0"
+  },
+  "allowScripts": {
+    "workerd@1.20261110.1": true
+  }
+}

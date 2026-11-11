@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "paperpens",
+  "compatibility_date": "2026-11-10",
+  // Static site: everything in public/ is served as-is, no Worker script.
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page"
+  }
+}
