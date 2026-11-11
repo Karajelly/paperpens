@@ -50,11 +50,9 @@ npm test             # checks generated puzzles have exactly one solution
 npm run deploy       # publish by hand (run `npx wrangler login` once first)
 ```
 
-Pushes to `main` deploy automatically. `.github/workflows/deploy.yml` runs the
-tests, then `wrangler deploy`. It needs two repository secrets:
-`CLOUDFLARE_API_TOKEN` (a token made from the "Edit Cloudflare Workers"
-template) and `CLOUDFLARE_ACCOUNT_ID`. You can also re-run a deploy by hand from
-the Actions tab.
+Pushes to `main` deploy automatically through Cloudflare's Git integration
+(Workers Builds), which is connected to this repo in the Cloudflare dashboard.
+It needs no secrets in GitHub. Build results show up as checks on each commit.
 
 ## Files
 
