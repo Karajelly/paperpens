@@ -341,14 +341,25 @@
       const svg = boardSVG(p, { color: true, tokens: c.solved ? p.solution : null, token: star });
       return `<div class="card-paper ${c.cls}"><div class="tag"><span>${c.tag[0]}</span><span>${c.tag[1]}</span></div>${svg}</div>`;
     }).join('');
+    const logo = document.querySelector('.brand .logo').outerHTML;
     return `<div class="welcome">
+      <div class="welcome-brand">${logo}<span>Paper Pens</span></div>
       <div class="fan" aria-hidden="true">${cards}</div>
       <h2>Puzzles you can hold</h2>
       <p>Put one ${star.sym} in every row, every column and every colored pen — and they can’t touch, not even corners.</p>
+      <div class="cta">
+        <button type="button" class="btn primary big" data-act="make">✨ Make puzzles</button>
+        <p class="cta-sub defaults"></p>
+        <div class="cta-links">
+          <button type="button" class="link customize" aria-controls="drawer" aria-expanded="false">⚙️ Customize first</button>
+          <button type="button" class="link" data-act="design">🎨 Design your own</button>
+        </div>
+      </div>
       <ol class="steps">
-        <li><b>Pick</b>a grid size, difficulty and token on the left.</li>
-        <li><b>Make</b>a fresh batch — each one has exactly one answer.</li>
+        <li><b>Make</b>a fresh batch. Each puzzle has exactly one answer.</li>
+        <li><b>Customize</b>size, difficulty, token and paper. The preview updates as you go.</li>
         <li><b>Print</b>and grab a pencil. Answers go at the back.</li>
+        <li><b>Repeat!</b>Hit “New batch” for another set whenever you like.</li>
       </ol>
     </div>`;
   }
@@ -356,6 +367,28 @@
   function showWelcome() {
     if (!welcomeCache) welcomeCache = welcomeHTML();
     pagesEl.innerHTML = welcomeCache;
+    syncDrawerButtons();
+    refreshWelcome();
+  }
+  // the one-line summary under the big button, so people know what they'll get
+  function refreshWelcome() {
+    const d = pagesEl.querySelector('.welcome .defaults');
+    if (!d) return;
+    const s = readForm(), t = TOKENS[s.token];
+    d.textContent = `${s.count} ${levelName(s.level).toLowerCase()} ${s.n} × ${s.n} puzzle${s.count === 1 ? '' : 's'}` +
+      `${s.k === 2 ? ' (2 per pen)' : ''} · ${t.sym} ${t.many} · ${s.perPage} per page`;
+  }
+
+  // ---------- settings drawer ----------
+
+  const wide = window.matchMedia('(min-width: 901px)');
+  function setDrawer(open) {
+    document.body.classList.toggle('drawer-open', open);
+    syncDrawerButtons();
+  }
+  function syncDrawerButtons() {
+    const open = String(document.body.classList.contains('drawer-open'));
+    for (const b of document.querySelectorAll('.customize')) b.setAttribute('aria-expanded', open);
   }
 
   async function make(s) {
@@ -374,15 +407,44 @@
       if (p) puzzles.push(p);
     }
     lastMade = { s, puzzles };
+    making = false;
+    document.body.classList.add('has-puzzles');
     render(s, puzzles);
     dock.style.setProperty('--p', 1);
     setTimeout(() => { if (id === runId) dock.classList.remove('busy'); }, 400);
+    readyStatus();
+    makeBtn.disabled = false;
+    makeBtn.textContent = '🎲 New batch';
+    makeBtn.title = 'Same settings, a fresh set of puzzles';
+    printBtn.disabled = puzzles.length === 0;
+  }
+
+  function readyStatus() {
+    const { s, puzzles } = lastMade;
     const off = puzzles.filter(p => p.level !== s.level).length;
     const pages = pagesEl.querySelectorAll('.sheet').length;
     statusEl.textContent = `✅ ${puzzles.length} puzzle${puzzles.length === 1 ? '' : 's'} ready on ${pages} page${pages === 1 ? '' : 's'}.` +
       (off ? ` ${off} came out at a different level than asked (each puzzle shows its level). Small grids can’t get very hard.` : '');
-    makeBtn.disabled = false;
-    printBtn.disabled = puzzles.length === 0;
+  }
+
+  // After the first batch, settings apply as soon as they change. Paper-only
+  // changes just redraw; anything that changes the puzzles makes them again.
+  const PUZZLE_KEYS = ['k', 'n', 'level', 'count', 'code'];
+  let making = false;
+  let liveTimer = 0;
+  function applyLive() {
+    syncOptions();
+    const s = readForm();
+    form.elements.code.value = s.code;
+    history.replaceState(null, '', toHash(s));
+    if (!making && PUZZLE_KEYS.every(key => s[key] === lastMade.s[key])) {
+      lastMade.s = s;
+      render(s, lastMade.puzzles);
+      readyStatus();
+    } else {
+      making = true;
+      make(s);
+    }
   }
 
   // ---------- modes ----------
@@ -390,7 +452,9 @@
   function setMode(mode) {
     document.body.dataset.mode = mode;
     for (const b of document.querySelectorAll('.mode-tabs button')) b.setAttribute('aria-selected', String(b.dataset.mode === mode));
+    if (mode === 'design') setDrawer(true);
     if (mode === 'make') {
+      if (!wide.matches) setDrawer(false);
       if (lastMade) render(lastMade.s, lastMade.puzzles);
       else showWelcome();
     }
@@ -434,31 +498,67 @@
 
   // ---------- wire up ----------
 
+  const changed = input => input.dispatchEvent(new Event('change', { bubbles: true }));
   for (const r of form.elements.k) r.addEventListener('change', syncOptions);
-  form.addEventListener('change', syncReadouts);
+  form.addEventListener('change', () => {
+    syncReadouts();
+    if (document.body.dataset.mode !== 'make') return;
+    if (!lastMade) { refreshWelcome(); return; }
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(applyLive, 250);
+  });
+  // once puzzles exist, Enter in a field applies it instead of rolling a new batch
+  form.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && lastMade && e.target.matches('input')) { e.preventDefault(); e.target.blur(); }
+  });
   for (const b of form.querySelectorAll('[data-step]')) {
     b.addEventListener('click', () => {
       const c = form.elements.count;
       c.value = Math.max(1, Math.min(24, (+c.value || 0) + +b.dataset.step));
+      changed(c);
     });
   }
   const dice = document.getElementById('new-code');
   dice.addEventListener('click', () => {
     form.elements.code.value = randomCode();
     dice.classList.remove('roll'); void dice.offsetWidth; dice.classList.add('roll');
+    changed(form.elements.code);
   });
-  document.getElementById('today').addEventListener('click', () => { form.elements.code.value = todayCode(); });
+  document.getElementById('today').addEventListener('click', () => { form.elements.code.value = todayCode(); changed(form.elements.code); });
   printBtn.addEventListener('click', () => window.print());
+  document.getElementById('fab-print').addEventListener('click', () => window.print());
   document.getElementById('share').addEventListener('click', shareSheet);
   for (const b of document.querySelectorAll('.mode-tabs button')) b.addEventListener('click', () => setMode(b.dataset.mode));
   form.addEventListener('submit', e => {
     e.preventDefault();
     if (document.body.dataset.mode !== 'make') return;
+    clearTimeout(liveTimer);
+    if (lastMade) form.elements.code.value = randomCode(); // "New batch"
     syncOptions();
     const s = readForm();
     form.elements.code.value = s.code;
     history.replaceState(null, '', toHash(s));
+    making = true;
     make(s);
+  });
+
+  // drawer open/close, and the buttons on the welcome screen
+  document.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.classList.contains('customize')) setDrawer(!document.body.classList.contains('drawer-open'));
+    else if (b.classList.contains('drawer-close')) setDrawer(false);
+    else if (b.dataset.act === 'design') setMode('design');
+    else if (b.dataset.act === 'make') {
+      b.disabled = true;
+      b.textContent = '✨ Making…';
+      if (wide.matches) setDrawer(true);
+      form.requestSubmit(makeBtn);
+    }
+  });
+  document.querySelector('.scrim').addEventListener('click', () => setDrawer(false));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.body.dataset.mode === 'make' && document.body.classList.contains('drawer-open')) setDrawer(false);
   });
 
   const fromUrl = fromHash();
@@ -470,7 +570,9 @@
   } else if (fromUrl) {
     writeForm(fromUrl);
     syncOptions();
+    setDrawer(wide.matches);
     setMode('make');
+    making = true;
     make(readForm());
   } else {
     form.elements.code.value = randomCode();

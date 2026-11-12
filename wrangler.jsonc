@@ -6,5 +6,8 @@
   "assets": {
     "directory": "./public",
     "not_found_handling": "404-page"
-  }
+  },
+  // Lets Cloudflare's builds for non-production branches (PRs) run
+  // `wrangler preview`. Empty is fine: assets above apply to previews too.
+  "previews": {}
 }
