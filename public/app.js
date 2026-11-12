@@ -216,7 +216,9 @@
     return `<span>${t}</span>`;
   }
 
+  let shown = []; // puzzles in the current preview, for the Play buttons
   function render(s, puzzles) {
+    shown = puzzles;
     pagesEl.innerHTML = '';
     document.getElementById('page-size').textContent =
       `@page { size: ${s.paper === 'a4' ? 'A4' : 'letter'}; margin: 0; }`;
@@ -238,9 +240,17 @@
         const idx = pg * s.perPage + j;
         const p = puzzles[idx];
         if (!p) break;
-        const box = el('div', 'pz');
+        const box = el('div', 'pz playable');
+        box.dataset.idx = idx;
         const time = s.names ? `<span>Time<span class="blank short"></span></span>` : '';
         box.appendChild(el('div', 'pz-label', `${labelHTML(s, p, idx)}${time}`));
+        const pill = el('button', 'play-btn');
+        pill.type = 'button';
+        pill.dataset.idx = idx;
+        pill.title = 'Solve this one on screen';
+        if (window.PaperPens.setPlayPill) window.PaperPens.setPlayPill(pill, window.PaperPens.playStatus(p));
+        else pill.textContent = '▶ Play';
+        box.querySelector('.pz-label > span').appendChild(pill);
         box.appendChild(el('div', 'board-wrap', boardSVG(p, { color: s.color })));
         grid.appendChild(box);
       }
@@ -351,6 +361,7 @@
         <button type="button" class="btn primary big" data-act="make">✨ Make puzzles</button>
         <p class="cta-sub defaults"></p>
         <div class="cta-links">
+          <button type="button" class="link" data-act="play">▶ Play one on screen</button>
           <button type="button" class="link customize" aria-controls="drawer" aria-expanded="false">⚙️ Customize first</button>
           <button type="button" class="link" data-act="design">🎨 Design your own</button>
         </div>
@@ -358,7 +369,7 @@
       <ol class="steps">
         <li><b>Make</b>a fresh batch. Each puzzle has exactly one answer.</li>
         <li><b>Customize</b>size, difficulty, token and paper. The preview updates as you go.</li>
-        <li><b>Print</b>and grab a pencil. Answers go at the back.</li>
+        <li><b>Print</b>and grab a pencil, or tap any puzzle to solve it on screen.</li>
         <li><b>Repeat!</b>Hit “New batch” for another set whenever you like.</li>
       </ol>
     </div>`;
@@ -494,7 +505,17 @@
     });
   }
 
-  window.PaperPens = { TOKENS, PASTELS, boardSVG, regionColors, readForm, printHomemade, levelName, esc, shareLink };
+  // A single fresh puzzle from the current settings, for playing without printing.
+  function freshPuzzle() {
+    syncOptions();
+    const s = readForm();
+    return E.generate({ n: s.n, k: s.k, level: s.level, seed: E.hashString(`${randomCode()}|${s.n}|${s.k}|${s.level}|play`) });
+  }
+
+  window.PaperPens = {
+    TOKENS, PASTELS, boardSVG, regionColors, readForm, printHomemade, levelName, esc, shareLink,
+    previewPuzzle: i => shown[i],
+  };
 
   // ---------- wire up ----------
 
@@ -549,12 +570,20 @@
     if (b.classList.contains('customize')) setDrawer(!document.body.classList.contains('drawer-open'));
     else if (b.classList.contains('drawer-close')) setDrawer(false);
     else if (b.dataset.act === 'design') setMode('design');
+    else if (b.dataset.act === 'play' && b.closest('.welcome')) {
+      const p = freshPuzzle();
+      if (p) window.PaperPens.play([p], 0, freshPuzzle);
+    }
     else if (b.dataset.act === 'make') {
       b.disabled = true;
       b.textContent = '✨ Making…';
       if (wide.matches) setDrawer(true);
       form.requestSubmit(makeBtn);
     }
+  });
+  pagesEl.addEventListener('click', e => {
+    const box = e.target.closest('.pz.playable');
+    if (box && window.PaperPens.play) window.PaperPens.play(shown, +box.dataset.idx);
   });
   document.querySelector('.scrim').addEventListener('click', () => setDrawer(false));
   document.addEventListener('keydown', e => {

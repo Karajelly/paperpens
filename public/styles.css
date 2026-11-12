@@ -362,6 +362,64 @@ body[data-mode="design"] #pages { display: none !important; }
   .confetti { display: none; }
 }
 
+/* ---------- solve on screen ---------- */
+.pz.playable { position: relative; cursor: pointer; }
+.pz.playable .board-wrap { transition: transform .15s ease; }
+.pz.playable:hover .board-wrap { transform: scale(1.012); }
+.play-btn {
+  margin-left: 8px; vertical-align: 1px;
+  border: 1.5px solid var(--accent-deep); background: var(--accent); color: #fff;
+  border-radius: 99px; padding: 1px 10px; font-size: 11.5px; font-weight: 800; font-family: "Nunito", system-ui, sans-serif;
+  box-shadow: 0 2px 0 var(--accent-deep); transition: transform .15s;
+}
+.pz.playable:hover .play-btn { transform: translateY(-1px); }
+.play-btn.done { background: #fff; color: var(--accent-deep); box-shadow: 0 2px 0 #b9e0cb; }
+
+dialog.play {
+  width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow-y: auto;
+  border: 1.5px solid var(--line); border-radius: 20px; padding: 16px 18px 14px;
+  background: var(--panel); color: var(--ink);
+  box-shadow: 0 30px 80px rgba(34, 34, 58, .35);
+  animation: sheet-in .35s cubic-bezier(.2, .9, .3, 1.1) both;
+}
+dialog.play::backdrop { background: rgba(34, 34, 58, .55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.play-head { display: flex; align-items: center; gap: 10px; }
+.play-title { display: flex; flex-direction: column; min-width: 0; margin-right: auto; }
+.play-title b { font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.play-title b small { font-family: "Nunito", system-ui, sans-serif; font-size: 13px; color: var(--muted); font-weight: 700; }
+.play-title span { font-size: 13px; font-weight: 700; color: var(--muted); }
+.play-time { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 15px; background: var(--field); border-radius: 99px; padding: 5px 11px; white-space: nowrap; }
+.play-close { width: 36px; height: 36px; flex: none; padding: 0; border-radius: 10px; border: 1.5px solid var(--line); background: #fff; color: var(--muted); font-size: 15px; font-weight: 800; }
+.play-close:hover { color: var(--ink); background: var(--field); }
+.play-goal { margin: 8px 0 10px; font-size: 14px; color: var(--ink-soft); line-height: 1.4; }
+.play-board {
+  width: min(100%, calc(100dvh - 300px)); min-width: 220px; margin: 0 auto; aspect-ratio: 1;
+  touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer;
+  background: #fff; border-radius: 12px; padding: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 8px 20px rgba(80, 55, 10, .1);
+}
+.play-board:focus, .play-board:focus-visible { outline: none; } /* keyboard users get the dashed square cursor */
+.play-board svg { display: block; width: 100%; height: 100%; }
+.play-board .hint-flash { animation: pulse 1s ease-in-out 3; }
+dialog.play.solved .play-board { box-shadow: 0 0 0 4px #9ed9ae, 0 10px 26px rgba(44, 138, 95, .25); cursor: default; }
+.play-msg {
+  margin: 12px 0 0; padding: 9px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.4;
+  background: var(--field); border: 1.5px solid transparent; min-height: 2.9em; color: var(--ink-soft);
+}
+.play-msg.warn { background: #fde9ea; border-color: #f4c2c6; color: #7a1d1d; }
+.play-msg.hint { background: #e7f0fd; border-color: #bcd4f6; color: #173f73; }
+.play-msg.good { background: #e4f6eb; border-color: #b6e2c8; color: #154a30; font-size: 15px; }
+.play-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.play-tools .play-auto { margin-left: auto; padding: 0; }
+.play-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1.5px dashed var(--line-strong); }
+.play-foot .btn[hidden] { display: inline-block; visibility: hidden; }
+.play-count { font-weight: 800; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+dialog.play .confetti { position: fixed; }
+@media (max-width: 520px) {
+  dialog.play { padding: 12px 12px 10px; border-radius: 16px; }
+  .play-board { width: 100%; }
+  .play-tools .btn { padding: 7px 10px; }
+}
+
 /* ---------- printed sheets ---------- */
 .sheet {
   --w: 8.5in; --h: 11in;
@@ -434,7 +492,7 @@ body[data-mode="design"] #pages { display: none !important; }
 /* ---------- print ---------- */
 @media print {
   body { display: block; background: #fff; }
-  .controls, .welcome, #designer, .confetti, .fab-bar, .scrim { display: none !important; }
+  .controls, .welcome, #designer, .confetti, .fab-bar, .scrim, .play-btn, dialog.play { display: none !important; }
   main { padding: 0; display: block; overflow: visible; }
   #pages, body[data-mode="design"] #pages { display: block !important; }
   #pages .sheet { animation: none; }
