@@ -52,7 +52,7 @@
   <style id="page-size">@page { size: letter; margin: 0; }</style>
 </head>
 <body data-mode="make">
-  <aside class="controls" aria-label="Puzzle settings">
+  <aside class="controls" id="drawer" aria-label="Puzzle settings">
     <header class="brand">
       <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
         <rect x="3" y="3" width="42" height="42" rx="11" fill="#fff"/>
@@ -67,6 +67,7 @@
         <h1>Paper Pens</h1>
         <p class="tagline">Logic puzzles for pencils</p>
       </div>
+      <button type="button" class="drawer-close" data-only="make" aria-label="Hide settings" title="Hide settings">✕</button>
     </header>
     <p class="lede">Put one token in every row, column and pen. Every puzzle has exactly one answer — no guessing needed.</p>
 
@@ -186,8 +187,15 @@
     </form>
   </aside>
 
+  <div class="scrim" aria-hidden="true"></div>
+
   <main>
     <div id="pages" aria-label="Print preview"></div>
+
+    <div class="fab-bar" data-only="make">
+      <button type="button" class="btn customize" aria-controls="drawer" aria-expanded="false">⚙️ Customize</button>
+      <button type="button" id="fab-print" class="btn primary">🖨️ Print</button>
+    </div>
 
     <section id="designer" data-only="design" aria-label="Design your own puzzle">
       <div class="card">
