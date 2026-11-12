@@ -20,6 +20,19 @@ Chrome, Safari or Firefox. Pick the settings, press **Make puzzles**, then
   page URL keeps the settings so you can bookmark a sheet. Use "today's date" for
   a family puzzle of the day, or print two copies to race.
 
+## Solve on screen
+
+Press **▶ Play** on any puzzle in the preview (or click the puzzle), **▶ Play one
+on screen** on the welcome page, or **▶ Play** in **My puzzles**. Tap a square
+once for ✕, twice for a token, three times to clear; drag to ✕ many squares
+(drag from a ✕ to erase). Arrow keys, space, X and S work too, and Ctrl+Z undoes.
+
+- Tokens that break a rule turn red, and a row, column or pen with no room left
+  is shaded.
+- **Hint** points out a wrong mark first, otherwise places one correct token.
+- **Auto ✕** crosses out squares around each token and in full rows, columns and pens.
+- Progress and time are kept in this browser; the preview shows ✓ Solved.
+
 ## Design your own
 
 Switch to the **Design your own** tab. Pick a color and click or drag on the
@@ -58,6 +71,7 @@ It needs no secrets in GitHub. Build results show up as checks on each commit.
 
 - `public/generator.js`: makes solutions, grows pens, removes extra solutions, grades difficulty
 - `public/app.js`: settings, page layout and SVG drawing
+- `public/play.js`: the on-screen solver
 - `public/designer.js`: the draw-your-own editor, checker, saved puzzles and share codes
 - `public/styles.css`: screen preview and print styles (Letter or A4)
 - `test/generator.test.js`: `npm test` checks that puzzles have one solution and times generation

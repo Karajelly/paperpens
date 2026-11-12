@@ -446,6 +446,7 @@
             <span class="muted">${x.author ? 'by ' + pp.esc(x.author) + ' · ' : ''}${x.n}×${x.n}${x.k === 2 ? ' · 2 per pen' : ''} · ${pp.levelName(x.level)}</span>
             <label class="check"><input type="checkbox" data-act="print" ${x.print !== false ? 'checked' : ''}> Print</label>
             <div class="mini-actions">
+              <button type="button" data-act="play">▶ Play</button>
               <button type="button" data-act="edit">Edit</button>
               <button type="button" data-act="code">Copy code</button>
               <button type="button" data-act="delete">Delete</button>
@@ -468,6 +469,7 @@
     if (!x) return;
     const act = btn.dataset.act;
     if (act === 'print') { x.print = btn.checked; writeSaved(list); drawSaved(); return; }
+    if (act === 'play') { P().play(list.map(asPuzzle), list.indexOf(x)); return; }
     if (act === 'edit') {
       if (hasWork() && st.editingId !== x.id && !confirm('Open this puzzle? Your current drawing will be replaced.')) return;
       $('d-title').value = x.title || '';
