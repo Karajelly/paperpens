@@ -16,7 +16,8 @@
     heart: { sym: '♥', one: 'heart', many: 'hearts', color: '#c0392b' },
     dot:   { sym: '●', one: 'dot',   many: 'dots',   color: '#111' },
   };
-  const PASTELS = ['#FCE1E4', '#DDEFE3', '#FFF0BF', '#DCEAFB', '#ECDDF8', '#FFE1C9', '#EEEBD9', '#E4E4E4'];
+  // One pastel per pen, so there must be at least as many as the largest grid (10 × 10).
+  const PASTELS = ['#FCE1E4', '#DDEFE3', '#FFF0BF', '#DCEAFB', '#ECDDF8', '#FFE1C9', '#D6F1EE', '#EEEBD9', '#E4E4E4', '#E6F4C4'];
   const LAYOUT = { 1: [1, 1], 2: [1, 2], 4: [2, 2], 6: [2, 3] };
 
   // ---------- settings <-> form <-> URL ----------
@@ -98,24 +99,11 @@
 
   // ---------- drawing ----------
 
+  // Every pen gets its own pastel (never shared, even by pens that don't touch).
+  // A seed-based offset keeps different puzzles from all looking alike.
   function regionColors(p) {
-    const { n, regions } = p;
-    const adj = Array.from({ length: n }, () => new Set());
-    for (let i = 0; i < n * n; i++) {
-      const r = (i / n) | 0, c = i % n;
-      if (c < n - 1 && regions[i] !== regions[i + 1]) { adj[regions[i]].add(regions[i + 1]); adj[regions[i + 1]].add(regions[i]); }
-      if (r < n - 1 && regions[i] !== regions[i + n]) { adj[regions[i]].add(regions[i + n]); adj[regions[i + n]].add(regions[i]); }
-    }
-    const order = [...Array(n).keys()].sort((a, b) => adj[b].size - adj[a].size);
-    const col = new Array(n).fill(-1);
-    const offset = p.seed % PASTELS.length;
-    for (const g of order) {
-      const used = new Set([...adj[g]].map(h => col[h]));
-      let c = 0;
-      while (used.has((c + offset) % PASTELS.length)) c++;
-      col[g] = (c + offset) % PASTELS.length;
-    }
-    return col.map(c => PASTELS[c]);
+    const offset = (p.seed >>> 0) % PASTELS.length;
+    return Array.from({ length: p.n }, (_, g) => PASTELS[(g + offset) % PASTELS.length]);
   }
 
   function boardSVG(p, opt) {
